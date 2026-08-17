@@ -1,0 +1,252 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f3f3f3;
+    margin: 0;
+    padding: 0;
+}
+
+/* --- CABEÇALHO --- */
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#btn-comecar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+#btn-comecar:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+#btn-comecar:hover:not(:disabled) {
+    background-color: #218838;
+}
+
+#tempo {
+    font-size: 24px;
+    font-weight: bold;
+    font-family: monospace;
+    color: #333;
+}
+
+#input-pais {
+    padding: 10px;
+    font-size: 16px;
+    width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+/* --- LAYOUT LADO A LADO --- */
+.game-wrapper {
+    display: flex;
+    flex-direction: row;
+    max-width: 1900px;
+    margin: 0 auto;
+    padding: 0 10px;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+#mapa-container {
+    flex: 3; 
+    background-color: #59aada;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    overflow: hidden;
+    position: sticky;
+    top: 20px; 
+}
+
+#listas-container {
+    flex: 1; 
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: flex-start;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+@media (max-width: 1000px) {
+    .game-wrapper {
+        flex-direction: column;
+    }
+    #mapa-container, #listas-container {
+        width: 100%;
+        max-height: none;
+        overflow-y: visible;
+        position: static;
+    }
+}
+
+/* --- REGRAS DO MAPA (SVG) --- */
+svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.25s ease;
+}
+
+svg title {
+    display: none;
+}
+
+svg.zoomed {
+    transform: scale(4);
+    cursor: zoom-out;
+}
+
+path {
+    fill: #ffffcc;
+    stroke: #a0a0a0;
+    stroke-width: 0.5px;
+    transition: fill 0.2s ease;
+}
+
+/* Removemos os círculos auxiliares do visual, mas deixamos eles físicos para o mouse! */
+circle {
+    opacity: 0 !important;
+    pointer-events: all !important; 
+}
+
+/* Mantém o amarelo apenas para os caminhos e polígonos reais dos países */
+.landxx, .limitxx, path, polygon {
+    fill: #ffffcc !important;
+    stroke: #a0a0a0 !important;
+    stroke-width: 0.5px !important;
+    opacity: 1 !important;
+    transition: fill 0.2s ease;
+}
+
+/* Protege o oceano */
+#ocean, .oceanxx {
+    fill: #59aada !important;
+}
+
+/* --- ESTILOS DE ACERTO/ERRO --- */
+.acertou, .acertou path, .acertou polygon {
+    fill: #28a745 !important;
+    stroke: #1e7e34 !important;
+}
+
+.errou, .errou path, .errou polygon {
+    fill: #dc3545 !important;
+    stroke: #a71d2a !important;
+}
+
+/* Efeito de hover apenas nos formatos reais e círculos invisíveis */
+.mapa-livre path:hover, 
+.mapa-livre polygon:hover,
+.mapa-livre circle:hover,
+.mapa-livre g:hover > path,
+.mapa-livre g:hover > polygon {
+    stroke: #000 !important;
+    stroke-width: 1.5px !important;
+}
+
+
+/* --- REGRAS DAS LISTAS --- */
+.continente-coluna {
+    flex: 1 1 180px; 
+    min-width: 160px;
+}
+
+.continente-header {
+    background-color: #000000;
+    color: white;
+    padding: 8px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #fff;
+}
+
+.pais-item {
+    border: 1px solid #dcdcdc;
+    border-top: none;
+    background-color: #fff;
+    padding: 6px 10px;
+    height: 32px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    color: transparent; 
+}
+
+.pais-item.adivinhado {
+    color: #333; 
+}
+
+.pais-item.nao-adivinhado {
+    color: #dc3545;
+}
+
+.bandeira-lista {
+    width: 24px;
+    height: auto;
+    margin-right: 10px;
+    border: 1px solid #eee;
+    opacity: 0; 
+    transition: opacity 0.2s;
+}
+
+.adivinhado .bandeira-lista,
+.nao-adivinhado .bandeira-lista {
+    opacity: 1; 
+}
+
+/* --- TOOLTIP --- */
+#tooltip {
+    position: absolute;
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #ccc;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    pointer-events: none;
+    z-index: 1000;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+    transition: opacity 0.1s ease;
+}
+
+.escondido {
+    opacity: 0;
+    visibility: hidden;
+}
+
+#tooltip img {
+    width: 45px;
+    height: auto;
+    margin-bottom: 8px;
+    border: 1px solid #ccc;
+    display: block;
+}
+
+#tooltip strong {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 5px;
+    color: #000;
+}
